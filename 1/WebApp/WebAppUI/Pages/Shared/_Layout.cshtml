@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+@*<div>
+    <h1 class="display-4">Calculator</h1>
+    <form method="post">
+        <div class="form-group">
+            <label for="exampleFormControlInput1">Number1</label>
+            <input type="number" class="form-control" id="exampleFormControlInput1">
+        </div>
+        <div class="form-group">
+            <label for="exampleFormControlSelect1">Arithmetic Operation</label>
+            <select class="form-control" id="exampleFormControlSelect1">
+                <option>+</option>
+                <option>-</option>
+                <option>*</option>
+                <option>/</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleFormControlInput2">Number2</label>
+            <input type="number" class="form-control" id="exampleFormControlInput2">
+        </div>
+        <button type="submit" class="btn btn-primary">=</button>
+    </form>
+</div>
+*@

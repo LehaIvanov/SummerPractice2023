@@ -1,0 +1,15 @@
+﻿@page
+@model WebAppUI.Pages.IndexModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Form";
+}
+
+<h1>Person</h1>
+
+<form method="post">
+    <label>Name: <input type="text" asp-for="Person!.Name" /></label>
+    <label>Last name: <input type="text" asp-for="Person!.LastName" /></label>
+    <label>Age: <input type="number" asp-for="Person!.Age" /></label>
+    <button type="submit">Submit</button>
+</form>
