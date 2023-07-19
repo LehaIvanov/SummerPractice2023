@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "app-build": "vite build",
-    "app-dev": "vite",
+    "app-dev": "vite --open",
     "app-preview": "vite preview",
     "lint": "run-s lint:*",
     "lint:prettier": "prettier --check --log-level warn .",
