@@ -48,7 +48,8 @@ namespace WebApi.Services
             var changes = _context.CurrencyPrices.Where(c =>
                 (c.CurrencyCode == purchasedCurrency || c.CurrencyCode == paymentCurrency) &&
                 c.DateTime >= model.FromDateTime &&
-                (model.ToDateTime == null || c.DateTime <= model.ToDateTime));
+                (model.ToDateTime == null || c.DateTime <= model.ToDateTime)).OrderBy(c => c.DateTime);
+
         }
     }
 }
