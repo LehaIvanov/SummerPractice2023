@@ -66,10 +66,10 @@ namespace WebApi.Helpers
             var now = DateTime.UtcNow;
             var random = new Random();
 
-            context.CurrencyPrices.AddRange(Enumerable.Range(1, 10).Select(index => currencies.Select(currency => new CurrencyPrice
+            context.CurrencyPrices.AddRange(Enumerable.Range(1, 30).Select(index => currencies.Select(currency => new CurrencyPrice
             {
                 Price = random.Next(Decimal.ToInt32(currency.MinPrice), Decimal.ToInt32(currency.MaxPrice)),
-                DateTime = now.AddSeconds(index * -15),
+                DateTime = now.AddSeconds(index * -10),
                 CurrencyCode = currency.Code,
                 Currency = currency,
             })).SelectMany(items => items));

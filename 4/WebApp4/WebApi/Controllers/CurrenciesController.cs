@@ -30,9 +30,10 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("/prices")]
-        public IActionResult GetPriceChanges(GetPricesRequest model)
+        public IActionResult GetPriceChanges([FromQuery] GetPricesRequest model)
         {
-
+            var result = _currencyService.GetPriceChanges(model);
+            return Ok(result);
         }
     }
 }
