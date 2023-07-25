@@ -47,7 +47,7 @@ namespace WebApi.Services
                 throw new AppException($"Unknown currency {paymentCurrency}");
             }
 
-            return _context.CurrencyPrices
+            var result = _context.CurrencyPrices
                 .Where(c => (c.CurrencyCode == purchasedCurrency || c.CurrencyCode == paymentCurrency) &&
                     c.DateTime >= model.FromDateTime &&
                     (model.ToDateTime == null || c.DateTime <= model.ToDateTime))
@@ -72,6 +72,8 @@ namespace WebApi.Services
                         Price = decimal.Round(purchased.Price / payment.Price, 3, MidpointRounding.ToPositiveInfinity)
                     };
                 });
+
+            return result;
         }
 
         private CurrencyPrice? GetLastPriceChangeBeforeDate(DateTime date, string currencyCode) 
