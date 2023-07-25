@@ -34,8 +34,9 @@ namespace WebApi.Helpers
                 b.HasKey(p => p.Id);
                 b.Property(p => p.Id).ValueGeneratedOnAdd();
                 b.Property(p => p.Price).IsRequired();
-                b.Property(p => p.DateTime).ValueGeneratedOnAdd();
-                b.HasOne(p => p.Currency);
+                b.Property(p => p.DateTime).IsRequired();
+                // b.OwnsOne(p => p.Currency);
+                b.HasOne(p => p.Currency).WithMany().HasForeignKey(p => p.CurrencyCode).IsRequired();
             });
         }
 

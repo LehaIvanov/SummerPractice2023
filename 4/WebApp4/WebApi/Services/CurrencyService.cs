@@ -47,52 +47,31 @@ namespace WebApi.Services
                 throw new AppException($"Unknown currency {paymentCurrency}");
             }
 
-            var changes = _context.CurrencyPrices.Where(c =>
-                (c.CurrencyCode == purchasedCurrency || c.CurrencyCode == paymentCurrency) &&
-                c.DateTime >= model.FromDateTime &&
-                (model.ToDateTime == null || c.DateTime <= model.ToDateTime)).OrderBy(c => c.DateTime).ToList();
-            var first = changes.FirstOrDefault();
-
-            if (first == null)
-            {
-                throw new AppException($"Unexpected error! No prices for currencies {paymentCurrency}, {purchasedCurrency}");
-            }
-
-            Decimal purchasedCurrencyPrice = first.Price;
-            Decimal paymentCurrencyPrice = first.Price;
-
-            if (first.CurrencyCode == purchasedCurrency)
-            {
-                paymentCurrencyPrice = GetLastPriceChangeBeforeDate(first.DateTime, paymentCurrency)?.Price ?? paymentCurrencyPrice;
-            }
-            else
-            {
-                purchasedCurrencyPrice = GetLastPriceChangeBeforeDate(first.DateTime, purchasedCurrency)?.Price ?? purchasedCurrencyPrice;
-            }
-
-            var result = new List<PriceChange>();
-
-            foreach (var change in changes)
-            {
-                if (change.CurrencyCode == paymentCurrency)
+            return _context.CurrencyPrices
+                .Where(c => (c.CurrencyCode == purchasedCurrency || c.CurrencyCode == paymentCurrency) &&
+                    c.DateTime >= model.FromDateTime &&
+                    (model.ToDateTime == null || c.DateTime <= model.ToDateTime))
+                .OrderBy(c => c.DateTime)
+                .ToList()
+                .GroupBy(c => c.DateTime)
+                .Select((IGrouping<DateTime, CurrencyPrice> g) =>
                 {
-                    paymentCurrencyPrice = change.Price;
-                }
-                else
-                {
-                    purchasedCurrencyPrice = change.Price;
-                }
+                    var purchased = g.FirstOrDefault(item => item.CurrencyCode == purchasedCurrency);
+                    var payment = g.FirstOrDefault(item => item.CurrencyCode == paymentCurrency);
 
-                result.Add(new PriceChange
-                {
-                    DateTime = change.DateTime,
-                    PaymentCurrencyCode = paymentCurrency,
-                    PurchasedCurrencyCode = purchasedCurrency,
-                    Price = Decimal.Round(purchasedCurrencyPrice / paymentCurrencyPrice, 3, MidpointRounding.ToPositiveInfinity)
+                    if (purchased == null || payment == null)
+                    {
+                        throw new AppException($"Grouping should contain both currencies, there are no currencies payment = {payment}, purchased = {purchased} for date {g.Key}");
+                    }
+
+                    return new PriceChange
+                    {
+                        DateTime = g.Key,
+                        PaymentCurrencyCode = payment.CurrencyCode,
+                        PurchasedCurrencyCode = purchased.CurrencyCode,
+                        Price = decimal.Round(purchased.Price / payment.Price, 3, MidpointRounding.ToPositiveInfinity)
+                    };
                 });
-            }
-
-            return result;
         }
 
         private CurrencyPrice? GetLastPriceChangeBeforeDate(DateTime date, string currencyCode) 
