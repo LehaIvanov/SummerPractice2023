@@ -6,7 +6,62 @@ namespace WebApi.Helpers
 {
     public class CurrencyHelper
     {
-        private static readonly List<Currency> _currencies = new List<Currency>
+        public static void AddCurrencyData(WebApplication app)
+        {
+            var now = GetUtcNow();
+
+            AddPrices(app, Enumerable.Range(1, 30).Select(index => now.AddSeconds(index * -10)));
+            Task.Run(() => AddPricesInBackground(app));
+        }
+
+        private static async Task AddPricesInBackground(WebApplication app)
+        {
+            var periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+            while (await periodicTimer.WaitForNextTickAsync())
+            {
+                try
+                {
+                    AddPrices(app, new List<DateTime>() { GetUtcNow() });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private static void AddPrices(WebApplication app, IEnumerable<DateTime> dates)
+        {
+            IServiceScope scope = app.Services.CreateScope();
+            using (DataContext? context = scope.ServiceProvider.GetService<DataContext>())
+            {
+                if (context == null)
+                {
+                    return;
+                }
+
+                var allCurrencies = context.Currencies.Any() ? context.Currencies : GetAllCurrencies();
+                var now = DateTime.UtcNow;
+                var random = new Random(now.Millisecond);
+                var prices = dates
+                    .Select(date => allCurrencies
+                        .Select(currency => new CurrencyPrice
+                        {
+                            Price = random.Next(Decimal.ToInt32(currency.MinPrice), Decimal.ToInt32(currency.MaxPrice)),
+                            DateTime = date,
+                            CurrencyCode = currency.Code,
+                            Currency = currency
+                        })
+                    )
+                    .SelectMany(items => items);
+
+                context.CurrencyPrices.RemoveRange(context.CurrencyPrices.Where(c => c.DateTime <= now.AddHours(-6)));
+                context.CurrencyPrices.AddRange(prices);
+                context.SaveChanges();
+            }
+        }
+
+        private static IEnumerable<Currency> GetAllCurrencies() => new List<Currency>
         {
             new Currency()
             {
@@ -55,74 +110,6 @@ namespace WebApi.Helpers
             }
         };
 
-        public static void AddCurrencyData(WebApplication app)
-        {
-            var now = GetUtcNow();
-
-            AddPrices(app, Enumerable.Range(1, 30).Select(index => now.AddSeconds(index * -10)).ToList());
-            Task.Run(() => AddPricesInBackground(app));
-        }
-
-        private static async Task AddPricesInBackground(WebApplication app)
-        {
-            var periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(10));
-            while (await periodicTimer.WaitForNextTickAsync())
-            {
-                try
-                {
-                    AddPrices(app, new List<DateTime>() { GetUtcNow() });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-        }
-
-        private static void AddPrices(WebApplication app, IList<DateTime> dates)
-        {
-            IServiceScope scope = app.Services.CreateScope();
-            using (DataContext? context = scope.ServiceProvider.GetService<DataContext>())
-            {
-                if (context == null)
-                {
-                    return;
-                }
-
-                var newCurrencies = context.Currencies.Any() ? null : _currencies.Select(currency => new Currency
-                {
-                    Code = currency.Code,
-                    Description = currency.Description,
-                    MaxPrice = currency.MaxPrice,
-                    MinPrice = currency.MinPrice,
-                    Name = currency.Name,
-                    Symbol = currency.Symbol
-                });
-                if (newCurrencies != null)
-                {
-                    context.Currencies.AddRange(newCurrencies);
-                }
-
-                var random = new Random(DateTime.UtcNow.Millisecond);
-                var prices = dates.Select(date => _currencies.Select(currency => new Currency
-                {
-                    Code = currency.Code,
-                    Description = currency.Description,
-                    MaxPrice = currency.MaxPrice,
-                    MinPrice = currency.MinPrice,
-                    Name = currency.Name,
-                    Symbol = currency.Symbol
-                }).Select(currency => new CurrencyPrice
-                {
-                    Price = random.Next(Decimal.ToInt32(currency.MinPrice), Decimal.ToInt32(currency.MaxPrice)),
-                    DateTime = date,
-                    CurrencyCode = currency.Code
-                })).SelectMany(items => items);
-
-                context.CurrencyPrices.AddRange(prices);
-                context.SaveChanges();
-            }
-        }
 
         private static DateTime GetUtcNow()
         {

@@ -18,6 +18,7 @@ namespace WebApi.Entities
         [JsonIgnore]
         public decimal MaxPrice { get; set; }
 
-        // public ICollection<CurrencyPrice> Prices { get; set; } = new List<CurrencyPrice>();
+        //[JsonIgnore]
+        //public ICollection<CurrencyPrice> Prices { get; set; } = new List<CurrencyPrice>();
     }
 }
