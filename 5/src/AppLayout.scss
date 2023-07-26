@@ -4,9 +4,9 @@
   align-items: center;
 
   &__menu {
-    flex-grow: 1;
     display: flex;
-    align-items: center;
+    flex-grow: 1;
     gap: 0.5rem;
+    align-items: center;
   }
 }

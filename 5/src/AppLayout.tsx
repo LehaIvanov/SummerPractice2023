@@ -1,12 +1,12 @@
-import CssBaseline from '@mui/material/CssBaseline';
-import { NavigateFunction, Outlet, useNavigate } from 'react-router-dom';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import AdbIcon from '@mui/icons-material/Adb';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import './AppLayout.scss';
+import CssBaseline from "@mui/material/CssBaseline";
+import { NavigateFunction, Outlet, useNavigate } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import AdbIcon from "@mui/icons-material/Adb";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import "./AppLayout.scss";
 
 type Page = {
   readonly label: string;
@@ -15,12 +15,12 @@ type Page = {
 
 const pages: Page[] = [
   {
-    label: 'Home',
-    path: '/'
+    label: "Home",
+    path: "/",
   },
   {
-    label: 'Contact us',
-    path: '/contact-us'
+    label: "Contact us",
+    path: "/contact-us",
   },
 ];
 
@@ -36,15 +36,13 @@ export default function AppLayout(): JSX.Element {
           <AppBar position="static">
             <Toolbar>
               <div className="app-bar">
-                <AdbIcon  />
-                <Typography variant="h6" noWrap>MUI — the best!</Typography>
+                <AdbIcon />
+                <Typography variant="h6" noWrap>
+                  MUI — the best!
+                </Typography>
                 <div className="app-bar__menu">
                   {pages.map((page: Page) => (
-                    <Button
-                      key={page.path}
-                      onClick={() => navigate(page.path)}
-                      sx={{ color: 'white' }}
-                    >
+                    <Button key={page.path} onClick={() => navigate(page.path)} sx={{ color: "white" }}>
                       {page.label}
                     </Button>
                   ))}
