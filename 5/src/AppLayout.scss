@@ -1,0 +1,12 @@
+.app-bar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  &__menu {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
