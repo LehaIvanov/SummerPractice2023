@@ -12,25 +12,26 @@ type PersonName = {
 const useStore = create<PersonName>((set) => ({
   first: '',
   last: '',
-  updateName: (type: NameType, value: string) => set((state) => ({ ...state, [type]: value }))
+  updateName: (type: NameType, value: string) => set(() => ({ [type]: value }))
 }));
 
-const TextInput = ({ value }: { value: NameType }) => {
-  const store = useStore();
+const TextInput = ({ nameType }: { nameType: NameType }) => {
+  const value = useStore((state) => state[nameType]);
+  const updateName = useStore((state) => state.updateName);
 
   return (
     <div className="field">
-      {value}: <input value={store[value]} onChange={e => store.updateName(value, e.target.value)} />
+      {nameType}: <input value={value} onChange={e => updateName(nameType, e.target.value)} />
     </div>
   );
 };
 
-const Display = ({ value }: { value: NameType }) => {
-  const store = useStore();
+const Display = ({ nameType }: { nameType: NameType }) => {
+  const value = useStore((state) => state[nameType]);
 
   return (
     <div className="value">
-      {value}: {store[value]}
+      {nameType}: {value}
     </div>
   );
 };
@@ -38,16 +39,16 @@ const Display = ({ value }: { value: NameType }) => {
 const FormContainer = memo(() => (
   <div className="container">
     <h5>FormContainer</h5>
-    <TextInput value="first" />
-    <TextInput value="last" />
+    <TextInput nameType="first" />
+    <TextInput nameType="last" />
   </div>
 ));
 
 const DisplayContainer = memo(() => (
   <div className="container">
     <h5>DisplayContainer</h5>
-    <Display value="first" />
-    <Display value="last" />
+    <Display nameType="first" />
+    <Display nameType="last" />
   </div>
 ));
 
