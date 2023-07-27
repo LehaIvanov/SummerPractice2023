@@ -1,32 +1,32 @@
-import { createContext, memo, useContext, useState } from "react";
+import { memo } from "react";
+import { create } from "zustand";
 
-const useStoreData = () => {
-  const store = useState({
-    first: "",
-    last: "",
-  });
+type NameType = 'first' | 'last';
 
-  return store;
-}
+type PersonName = {
+  first: string;
+  last: string;
+  updateName: (type: NameType, value: string) => void;
+};
 
-type UseStoreDataReturnType = ReturnType<typeof useStoreData>;
+const useStore = create<PersonName>((set) => ({
+  first: '',
+  last: '',
+  updateName: (type: NameType, value: string) => set((state) => ({ ...state, [type]: value }))
+}));
 
-const StoreContext = createContext<UseStoreDataReturnType | null>(null);
-
-const useStore = () => useContext(StoreContext)!;
-
-const TextInput = ({ value }: { value: "first" | "last" }) => {
-  const [store, setStore] = useStore();
+const TextInput = ({ value }: { value: NameType }) => {
+  const store = useStore();
 
   return (
     <div className="field">
-      {value}: <input value={store[value]} onChange={e => setStore({ ...store, [value]: e.target.value })} />
+      {value}: <input value={store[value]} onChange={e => store.updateName(value, e.target.value)} />
     </div>
   );
 };
 
-const Display = ({ value }: { value: "first" | "last" }) => {
-  const [store] = useStore();
+const Display = ({ value }: { value: NameType }) => {
+  const store = useStore();
 
   return (
     <div className="value">
@@ -59,20 +59,11 @@ const ContentContainer = memo(() => (
   </div>
 ));
 
-const App = () => {
-  const store = useState({
-    first: "",
-    last: "",
-  });
-
-  return (
-    <StoreContext.Provider value={store}>
-      <div className="container">
-        <h5>App</h5>
-        <ContentContainer />
-      </div>
-    </StoreContext.Provider>
-  );
-}
+const App = () => (
+  <div className="container">
+    <h5>App</h5>
+    <ContentContainer />
+  </div>
+)
 
 export default App;
